@@ -9,7 +9,7 @@
 # Universita degli Studi di Milano 
 
 # Please cite our work
-# 
+# https://doi.org/10.1038/s41598-020-57742-z
 
 from Bio import SeqIO
 import os
