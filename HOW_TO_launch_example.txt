@@ -1,0 +1,59 @@
+##################################################################################################################################################################
+##################################################################################################################################################################
+
+# command line to run the example analysis:
+python3 EasyPrimer.py -in Example.fas
+
+##################################################################################################################################################################
+##################################################################################################################################################################
+
+# If you are using EasyPrimer for an article or scientfic publication Please cite M. Perini et al. 2020 (https://doi.org/10.1038/s41598-020-57742-z)
+
+# TEST FILE ==> https://skynet.unimi.it/wp-content/uploads/easy_primer/pgi.fas
+# OUTPUT EXAMPLE ==> https://skynet.unimi.it/wp-content/uploads/easy_primer/pgi_HRM_analysis.pdf
+# Online version of the tool: https://skynet.unimi.it/index.php/tools/easyprimer/
+
+Developed by Matteo Perini, 2018
+
+python EasyPrimer.py -h
+usage: EasyPrimer.py [-h] [-out OUT_FOLDER] [-tmp TMP_FOLDER] [-aln ALN]
+                     [-consthr CONSENSUS_LIMIT] [-minpri MINPRI]
+                     [-maxpri MAXPRI] [-minamp MINAMP] [-maxamp MAXAMP]
+                     [-prithr PRIM_THR] [-ampthr  AMP_THR] [-npri N_ADJ]
+                     [-wnpri W_ADJ] [-prefix JOBNAME] [-snp {HRM,ALL}] -in
+                     INPUTFILE
+
+**********
+EasyPrimer was developed to assist pan-PCR and 
+High Resolution Melting (HRM) primer design
+**********
+
+TEST FILE ==> https://skynet.unimi.it/wp-content/uploads/easy_primer/pgi.fas
+OUTPUT EXAMPLE ==> https://skynet.unimi.it/wp-content/uploads/easy_primer/pgi_HRM_analysis.pdf
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -out OUT_FOLDER       Output Folder. Default = 'Out'
+  -tmp TMP_FOLDER       folder with tmp and log files, created automatically if it doesn't exist. Default = 'tmp'
+  -aln ALN              write 'n' to skip sequence alignment. In this case the sequences must be already aligned and the file in the Current Working Directory
+  -consthr CONSENSUS_LIMIT
+                        Consensus sequence limit, positive real number between 0 and 1. Default = 0.05
+  -minpri MINPRI        Minimum primer lenght. Default = 15
+  -maxpri MAXPRI        Maxium primer lenght. Default = 25
+  -minamp MINAMP        Minimum amplicon lenght. Default = 40
+  -maxamp MAXAMP        Maximum amplicon lenght. Default = 90
+  -prithr PRIM_THR      Variability threshold for the selection of the primers, positive real number between 0 and 1. Default = 0.2
+  -ampthr  AMP_THR      Variability threshold for the selection of the amplicon, positive real number between 0 and 1. Default = 0.95
+  -npri N_ADJ           Number of primer residues next to the aplicon considered fundamental for primer anneling. default = 5
+  -wnpri W_ADJ          Weight for the adjustment in the '-npri' residues, positive real number between 0 and 1. default = 0.7
+  -prefix JOBNAME       Job name to be added as a prefix in final PDF and in tmp files as well
+  -snp {HRM,ALL}        Either 'HRM' or 'ALL', dafault is 'HRM'
+
+required arguments:
+  -in INPUTFILE         REQUIRED ARGUMENT: fasta file of the gene to be analyzed
+
+If you are using EasyPrimer for an article or scientfic publication
+Please cite M. Perini et al. 2020 (https://doi.org/10.1038/s41598-020-57742-z)
+
+Online version of the tool: https://skynet.unimi.it/index.php/tools/easyprimer/
+
