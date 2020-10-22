@@ -1,15 +1,15 @@
 #! /usr/bin/env python3
 
-# python3.6 EasyPrimer.py -in Example.fas
+# command line to run the example analysis:
+# python3 EasyPrimer.py -in Example.fas
 
-# Developed by Matteo Perini 2019
-# SkyNet UNIMI
-# Pediatric Clinical Research Center
-# Romeo ed Enrica Invernizzi
-# Universita degli Studi di Milano 
+# If you are using EasyPrimer for an article or scientfic publication Please cite M. Perini et al. 2019 (doi: https://doi.org/10.1101/679001)
 
-# Please cite our work
-# https://doi.org/10.1038/s41598-020-57742-z
+# TEST FILE ==> https://skynet.unimi.it/wp-content/uploads/easy_primer/pgi.fas
+# OUTPUT EXAMPLE ==> https://skynet.unimi.it/wp-content/uploads/easy_primer/pgi_HRM_analysis.pdf
+# Online version of the tool: https://skynet.unimi.it/index.php/tools/easyprimer/
+
+# Developed by Matteo Perini, 2018
 
 from Bio import SeqIO
 import os
@@ -25,7 +25,7 @@ import argparse
 start_time = time.time()
 
 
-def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim_thr, amp_thr, n_adj, w_adj, alg, jobname, snp):
+def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim_thr, amp_thr, n_adj, w_adj, alg, jobname, snp, minpri, maxpri, minamp, maxamp):
 
     cwd = os.getcwd() + '/'
     path_scripts = cwd + "Scripts_and_tools/"
@@ -94,7 +94,7 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
     tocheck1 = []
     k = 0
     
-    with open(inputpath + genename_ext, "rU") as handle:
+    with open(inputpath + genename_ext, "r") as handle:
         for record in SeqIO.parse(handle, "fasta"):
             myseq = record.seq
             allseq.append(myseq)
@@ -105,8 +105,8 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
     tocheck = set(tocheck)
     if len(tocheck) != len(tocheck1):
         logger.info('There is one or more duplicate sequences in the variants list of ' + genename)
-        logger.info('PROGRAM HAS STOPPED ###ERROR######ERROR######ERROR######ERROR######ERROR###')
-        quit('###ERROR### PROGRAM HAS STOPPED' + '\n' + '---> There is one or more duplicate sequences in the variants list of '+ genename)
+        #logger.info('PROGRAM HAS STOPPED ###ERROR######ERROR######ERROR######ERROR######ERROR###')
+        #quit('###ERROR### PROGRAM HAS STOPPED' + '\n' + '---> There is one or more duplicate sequences in the variants list of '+ genename)
     else:
         pass
     
@@ -262,6 +262,11 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
     'Primer_Lenght', 'Amplicon_Lenght', 
     'Primer1_consensus', 'Primer2_consensus', 'Pri1_amb ', 'Pri2_amb', 'amp_HRMamb'])
 
+    if snp == 'HRM':
+        selector = 11
+    if snp == 'ALL':
+        selector = 12
+
     ID = 0
     pri_count = 0
     for pri in prilen:
@@ -279,7 +284,7 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
                 ID += 1                 # 'ID': univocal ascending identifier 
                 pri1score = float(0)    # 'Score_primer1' mean shannon index for primer1 region
                 pri2score = float(0)    # 'Score_primer2'mean shannon index for primer2 region
-                maxpri = float(0)       # 'Score_MaxPrimer': max between 'Score_primer1', 'Score_primer2' (the wrose score between them)
+                max_pri = float(0)      # 'Score_MaxPrimer': max between 'Score_primer1', 'Score_primer2' (the wrose score between them)
                 ampscore = float(0)     # 'Score_amplicon': mean FHRM+ in amplicon region 
                 pri1cons = ''           # 'Primer1 consensus': consensus seq for primer 1
                 pri2cons = ''           # 'Primer2 consensus': consensus seq for primer 2
@@ -289,7 +294,7 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
                 handamp = ''   # handler
                 currset = []   # list of values for current combination
 
-                # key positions:
+                # key positions of scanning window:
                 # combination scheme:  'p1'__primer1__'p2'__amplicon__'p3'__primer2__'p4'
                 p1 = k          # p1: primer1 start position
                 p2 = p1 + pri   # p2: primer1 end position
@@ -301,7 +306,7 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
                     pri1score += (float(snptab[j][13]) * w_list[w_count])  # Shannon index
                     pri1cons = pri1cons + snptab[j][15]
                     w_count += 1
-                #pri1score = pri1score/pri
+                
                 # 'Score_primer2'
                 w_count = 0
                 rw_list=list(reversed(w_list))
@@ -310,14 +315,12 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
                     pri2score += (float(snptab[j][13]) * rw_list[rw_count])  # Shannon index    
                     pri2cons = pri2cons + snptab[jj][15]
                     rw_count += 1
-                #pri2score = pri2score/pri
+                
                 # 'Score_amplicon'
                 for h in range(p2, p3):
-                    ampscore += (float(snptab[h][11]))  # FHRM+ (summation of frequencies of the HRM detectable SNPs inside the amplicon)
-                    if snptab[h][14] == ('R' or 'M' or 'K' or 'Y'):
-                        handamp = handamp + snptab[j][14]
-                ampscore = ampscore/amp
-                maxpri = max(pri1score, pri2score)
+                    ampscore += (float(snptab[h][selector]))	# fSNP (average of frequencies of the ALL SNPs inside the amplicon) 
+                ampscore = ampscore/amp				# fHRM+ (average of frequencies of the HRM detectable SNPs inside the amplicon) 
+                max_pri = max(pri1score, pri2score)
                 pri1_amb = pri1cons.count("R") + pri1cons.count("Y") + \
                     pri1cons.count("S") + pri1cons.count("W") + \
                     pri1cons.count("K") + pri1cons.count("M") + \
@@ -331,7 +334,7 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
                 amp_HRMamb = pri2cons.count("R") + pri2cons.count("M") + \
                     pri2cons.count("K") + pri2cons.count("Y")
                 currset = [ID, p1, p2, p3, p4,
-                        pri1score, pri2score, maxpri, ampscore, 
+                        pri1score, pri2score, max_pri, ampscore, 
                         pri, amp,
                         pri1cons, pri2cons,
                         pri1_amb, pri2_amb, amp_HRMamb]
@@ -351,7 +354,10 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
         jobname_flag = jobname
 
     #++++++++++++++++Plotting in R++++++++++++++++++++++++++++++++++++++
-    rcomand = "Rscript " + path_scripts + "Plot_OUTPUT.R "+tmp_folder+" "+ genename +" "+ out_folder +" " + cwd +" "+ snp +" "+ str(prim_thr) +" "+ str(amp_thr) +" "+ jobname_flag+" "+ str(conslimit)
+    #rcomand = "Rscript " + path_scripts + "Plot_OUTPUT.R "+tmp_folder+" "+ genename +" "+ out_folder +" " + cwd +" "+ snp +" "+ str(prim_thr) +" "+ str(amp_thr) +" "+ jobname_flag+" "+ str(conslimit)
+    rcomand = "Rscript " + path_scripts + "Plot_OUTPUT.R "+ genename +" "+ out_folder +" " + cwd + \
+            " "+ snp +" "+ str(prim_thr) +" "+ str(amp_thr) +" "+ jobname_flag+" "+ str(conslimit)+ \
+            " "+str(minpri)+" "+str(maxpri)+" "+str(minamp)+" "+str(maxamp)+" "+ tmp_folder
 
     try:
         subprocess.check_call(rcomand, shell=True)
@@ -408,15 +414,25 @@ def run(args):
     else:
         jobname = jobname + '_'
     ########## MAIN FUNCTION ##########
-    primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim_thr, amp_thr, n_adj, w_adj, alg, jobname, snp)
+    primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim_thr, amp_thr, n_adj, w_adj, alg, jobname, snp, minpri, maxpri, minamp, maxamp)
     ###################################
 
 def main():    
-    parser=argparse.ArgumentParser(description="This tool assists the primer design procedure for typing \n if you use it in your work please cite: ????")
+    parser=argparse.ArgumentParser(description="**********"+"\n" +\
+	"EasyPrimer was developed to assist pan-PCR and "+"\n" +\
+	"High Resolution Melting (HRM) primer design"+"\n"+\
+	"**********"+ '\n\n' +\
 
-    parser.add_argument("-in",help="fasta file of the gene to be analyzed" ,dest="inputfile" , type=str, required=True)
+	"TEST FILE ==> https://skynet.unimi.it/wp-content/uploads/easy_primer/pgi.fas"+ '\n' +\
+	"OUTPUT EXAMPLE ==> https://skynet.unimi.it/wp-content/uploads/easy_primer/pgi_HRM_analysis.pdf",
+	epilog = "If you are using EasyPrimer for an article or scientfic publication"+ '\n' + \
+	"Please cite M. Perini et al. 2019 (doi: https://doi.org/10.1101/679001)"+ '\n\n' +\
 
-    parser.add_argument("-out",help="Output Folder. Default = Out" ,dest="out_folder" , type=str, default='Out')
+	"Online version of the tool: https://skynet.unimi.it/index.php/tools/easyprimer/",
+	formatter_class=argparse.RawTextHelpFormatter) 
+
+
+    parser.add_argument("-out",help="Output Folder. Default = 'Out'" ,dest="out_folder" , type=str, default='Out')
     parser.add_argument("-tmp",help="folder with tmp and log files, created automatically if it doesn't exist. Default = 'tmp'" ,dest="tmp_folder" , type=str, default='tmp')
     parser.add_argument("-aln",help="write 'n' to skip sequence alignment. In this case the sequences must be already aligned and the file in the Current Working Directory" ,dest="aln" , type=str, default='y')
     parser.add_argument("-consthr",help="Consensus sequence limit, positive real number between 0 and 1. Default = 0.05" ,dest="consensus_limit" , type=float, default=0.05)
@@ -431,6 +447,9 @@ def main():
     parser.add_argument("-prefix",help="Job name to be added as a prefix in final PDF and in tmp files as well" ,dest="jobname" , type=str, default="")
     parser.add_argument("-snp",help="Either 'HRM' or 'ALL', dafault is 'HRM'" ,dest="snp" , choices=['HRM', 'ALL'], default="HRM")
     
+    requiredNamed = parser.add_argument_group('required arguments')
+    requiredNamed.add_argument("-in",help="REQUIRED ARGUMENT: fasta file of the gene to be analyzed" ,dest="inputfile" , type=str, required=True)	
+
     parser.set_defaults(func=run)
     args=parser.parse_args()
     args.func(args)
