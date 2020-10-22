@@ -71,8 +71,10 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
 
 
 
-    #++++++++++++++++muscle alignment++++++++++++++++++++++++++++++++++++++
-    
+    #++++++++++++++++muscle alignment+++++++++++++++++++++++++++++++++++++
+    #makes muscle executable
+    subprocess.run("chmod 777 " + path_scripts + 'muscle3.8.31_i86linux64', shell=True)
+
     if alg != 'n':
         check_algn = False
         mcomand = path_scripts + 'muscle3.8.31_i86linux64 -in '+ cwd + inputfile + ' -out '+ cwd + tmp_folder +'/tmp/'+ genename_ext + ' -loga '+ cwd + tmp_folder +'/log/muscle_log.txt -quiet'
