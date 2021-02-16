@@ -99,8 +99,8 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
     with open(inputpath + genename_ext, "r") as handle:
         for record in SeqIO.parse(handle, "fasta"):
             myseq = record.seq
-            allseq.append(myseq)
-            tocheck.append(str(myseq))
+            allseq.append(myseq.upper())
+            tocheck.append(str(myseq.upper()))
             tocheck1.append(record)
             k = k+1
     # check to see if there are idententical sequences with different names
