@@ -92,26 +92,14 @@ def primerHRM(out_folder, tmp_folder, inputfile, conslimit, prilen, amplen, prim
 
     # apre il file e crea una lista delle sequenze
     allseq = []
-    tocheck = []
-    tocheck1 = []
     k = 0
     
     with open(inputpath + genename_ext, "r") as handle:
         for record in SeqIO.parse(handle, "fasta"):
             myseq = record.seq
             allseq.append(myseq.upper())
-            tocheck.append(str(myseq.upper()))
-            tocheck1.append(record)
             k = k+1
-    # check to see if there are idententical sequences with different names
-    tocheck = set(tocheck)
-    if len(tocheck) != len(tocheck1):
-        logger.info('There is one or more duplicate sequences in the variants list of ' + genename)
-        #logger.info('PROGRAM HAS STOPPED ###ERROR######ERROR######ERROR######ERROR######ERROR###')
-        #quit('###ERROR### PROGRAM HAS STOPPED' + '\n' + '---> There is one or more duplicate sequences in the variants list of '+ genename)
-    else:
-        pass
-    
+
     #check sequences lenght
     if check_algn == True:
         logger.info('MUSCLE alignment avoided, checking if all sequences have the same lenght....')
