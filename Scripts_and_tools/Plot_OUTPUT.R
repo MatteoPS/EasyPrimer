@@ -48,6 +48,7 @@ amp_thr = as.numeric(amp_thr)
 conslimit = as.numeric(conslimit)
 
 genelen <- length(tab$Position)
+num_seq <- sum(tab[1,2:6])
 q_prim <-  unname(quantile(score$Score_MaxPrimer, prim_thr))
 q_amp <-  unname(quantile(score$Score_amplicon, amp_thr))
 
@@ -183,7 +184,7 @@ colors <- ifelse(vec, "red", "black")
 text(1:x_max, y=0.02 , cons_str, cex = 0.3, pos = 1, font=2, col = colors)
 
 legend("topleft", legend = c("Suggested Primers Areas","Suggested Amplicon Areas", "SNPs frequency", snp_legend, paste("- Primer range:", minpri,"-", maxpri, "nt", sep=" "),
-                             paste("- Amplicon range:", minamp,"-", maxamp, "nt", sep=" "),paste("- Consensus limit:", (conslimit*100),"%", sep=" ")),
+                             paste("- Amplicon range:", minamp,"-", maxamp, "nt", sep=" "),paste("- Consensus limit:", (conslimit*100),"%", sep=" "),paste("- Sequences:", num_seq, sep=" ")),
        col=c("dodgerblue4","red", col_picchi, snp_col, 'white', 'white', 'white'),lty = c(0,0,0,2,0,0,0),pch = c(22, 22, 22,NA,22,22,22),pt.bg = c("dodgerblue4","red", col_picchi,NA, NA, NA, NA),pt.cex = 2, bty = "n")
 
 cat(paste(format(Sys.time()),paste(genename, name_sufx, ".pdf", sep = ""), "is avilable\n" , sep = ' '), file = logfile, append = TRUE)
